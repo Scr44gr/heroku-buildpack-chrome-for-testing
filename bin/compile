@@ -89,7 +89,6 @@ echo "export PATH=\$HOME/.chrome-for-testing/chrome-linux64:/usr/lib/chromium-br
 
 # Verify the executables are actually present
 export PATH="$BUILD_DIR/.chrome-for-testing/chrome-linux64:$BUILD_DIR/.chrome-for-testing/chromedriver-linux64:$PATH"
-which google-chrome-stable | indent
 which chromedriver | indent
 
 echo "Installed Google Chrome for Testing $CHANNEL version $VERSION" | indent
