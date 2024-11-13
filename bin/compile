@@ -74,7 +74,7 @@ rm -f "$DEB_LOCATION" data.tar.xz
 
 # Step 3: Download Chromedriver
 echo "Downloading Chromedriver" | indent
-CHROMEDRIVER_URL="https://chromedriver.storage.googleapis.com/${VERSION}/chromedriver_linux64.zip"
+CHROMEDRIVER_URL="https://storage.googleapis.com/chrome-for-testing-public/$VERSION/linux64/chromedriver-linux64.zip"
 CHROMEDRIVER_LOCATION="$INSTALL_DIR/chromedriver.zip"
 curl --silent --show-error --fail --retry 3 --retry-connrefused --connect-timeout 10 -o "${CHROMEDRIVER_LOCATION}" "${CHROMEDRIVER_URL}" | indent
 unzip -q -o "$CHROMEDRIVER_LOCATION" -d "$INSTALL_DIR" | indent
