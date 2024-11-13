@@ -58,22 +58,28 @@ CHANNEL="$(echo -n "$channel" | awk '{ print toupper($0) }')"
 VERSION="$(curl --silent --show-error --fail --retry 3 --retry-connrefused --connect-timeout 10 "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_$CHANNEL")"
 echo "Resolved $CHANNEL version $VERSION" | indent
 
-echo "Downloading Chrome" | indent
-ZIP_URL="https://storage.googleapis.com/chrome-for-testing-public/$VERSION/linux64/chrome-linux64.zip"
-ZIP_LOCATION="$INSTALL_DIR/chrome.zip"
-curl --silent --show-error --fail --retry 3 --retry-connrefused --connect-timeout 10 -o "${ZIP_LOCATION}" "${ZIP_URL}" | indent
-unzip -q -o "$ZIP_LOCATION" -d "$INSTALL_DIR" | indent
-rm -f "$ZIP_LOCATION"
+# Step 1: Download and install Chrome
+echo "Downloading Google Chrome" | indent
+DEB_URL="https://dl.google.com/linux/direct/google-chrome-${CHANNEL}_current_amd64.deb"
+DEB_LOCATION="$INSTALL_DIR/google-chrome.deb"
+curl --silent --show-error --fail --retry 3 --retry-connrefused --connect-timeout 10 -o "${DEB_LOCATION}" "${DEB_URL}" | indent
 
+# Install the downloaded .deb package (requires sudo)
+echo "Installing Google Chrome" | indent
+dpkg -i "$DEB_LOCATION" || apt-get install -f -y # Fix dependencies if necessary
+rm -f "$DEB_LOCATION"
+
+# Step 2: Download and install Chromedriver
 echo "Downloading Chromedriver" | indent
-ZIP_URL="https://storage.googleapis.com/chrome-for-testing-public/$VERSION/linux64/chromedriver-linux64.zip"
-ZIP_LOCATION="$INSTALL_DIR/chromedriver.zip"
-curl --silent --show-error --fail --retry 3 --retry-connrefused --connect-timeout 10 -o "${ZIP_LOCATION}" "${ZIP_URL}" | indent
-unzip -q -o "$ZIP_LOCATION" -d "$INSTALL_DIR" | indent
-rm -f "$ZIP_LOCATION"
+CHROMEDRIVER_URL="https://chromedriver.storage.googleapis.com/${VERSION}/chromedriver_linux64.zip"
+CHROMEDRIVER_LOCATION="$INSTALL_DIR/chromedriver.zip"
+curl --silent --show-error --fail --retry 3 --retry-connrefused --connect-timeout 10 -o "${CHROMEDRIVER_LOCATION}" "${CHROMEDRIVER_URL}" | indent
+unzip -q -o "$CHROMEDRIVER_LOCATION" -d "$INSTALL_DIR" | indent
+rm -f "$CHROMEDRIVER_LOCATION"
 
 source "$BUILDPACK_DIR/bin/install-chrome-dependencies"
 
+# Step 3: Add executables to PATH
 echo "Adding executables to PATH" | indent
 mkdir -p "$BUILD_DIR/.profile.d"
 echo "export PATH=\$HOME/.chrome-for-testing/chrome-linux64:\$HOME/.chrome-for-testing/chromedriver-linux64:\$PATH" >> "$BUILD_DIR/.profile.d/chrome-for-testing.sh"
@@ -83,4 +89,4 @@ export PATH="$BUILD_DIR/.chrome-for-testing/chrome-linux64:$BUILD_DIR/.chrome-fo
 which chrome | indent
 which chromedriver | indent
 
-echo "Installed Chrome for Testing $CHANNEL version $VERSION" | indent
+echo "Installed Google Chrome for Testing $CHANNEL version $VERSION" | indent
